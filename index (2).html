@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kuis Matematika &amp; Logika</title>
+<style>
+:root{--bg:#f4f6fb;--card:#fff;--tx:#1b2333;--mu:#667085;--bd:#dfe4ee;--pr:#1f3a6e;--pr2:#e8eefb;--ok:#14804a;--okbg:#e3f6ec;--no:#b42318;--nobg:#fdeceb;--gold:#f5b301}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1420;--card:#171e2e;--tx:#e8ecf5;--mu:#97a1b6;--bd:#2a3347;--pr:#7ea2f0;--pr2:#202a42;--ok:#4cd08b;--okbg:#12301f;--no:#ff8b80;--nobg:#3a1a18}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+.wrap{max-width:680px;margin:0 auto;padding:16px}
+h1{font-size:1.5rem;margin:8px 0 2px;color:var(--pr)}
+h2{font-size:1.15rem;margin:0 0 10px}
+.sub{color:var(--mu);margin:0 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;margin-bottom:14px}
+.tabs{display:flex;gap:8px;margin:10px 0 14px}
+.tab{flex:1;padding:10px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font-size:.95rem;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--pr);color:var(--bg);border-color:var(--pr);font-weight:600}
+input[type=text]{width:100%;padding:12px;border-radius:10px;border:1px solid var(--bd);background:var(--bg);color:var(--tx);font:inherit}
+.btn{display:inline-block;padding:12px 18px;border-radius:10px;border:0;background:var(--pr);color:var(--bg);font:inherit;font-weight:600;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sec{background:var(--pr2);color:var(--pr)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.bar{height:8px;background:var(--pr2);border-radius:99px;overflow:hidden;margin-bottom:6px}
+.bar>i{display:block;height:100%;background:var(--pr)}
+.meta{display:flex;justify-content:space-between;gap:8px;color:var(--mu);font-size:.9rem;margin-bottom:6px}
+.q{font-size:1.1rem;font-weight:600;margin:10px 0 14px}
+.opt{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:13px;margin-bottom:8px;border-radius:10px;border:1.5px solid var(--bd);background:var(--card);color:var(--tx);font:inherit;cursor:pointer}
+.opt b{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--pr2);color:var(--pr);align-items:center;justify-content:center;flex:none}
+.opt.sel{border-color:var(--pr);background:var(--pr2)}
+.big{text-align:center}
+.big .n{font-size:3rem;font-weight:800;color:var(--pr);line-height:1.1}
+.big .p{font-size:1.2rem;font-weight:600}
+.rv{border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:8px}
+.rv.ok{background:var(--okbg);border-color:var(--ok)}
+.rv.no{background:var(--nobg);border-color:var(--no)}
+.rv small{display:block;color:var(--mu);margin-top:4px}
+.winner{background:linear-gradient(135deg,var(--pr2),var(--card));border:2px solid var(--gold);border-radius:14px;padding:16px;margin-bottom:14px;text-align:center}
+.winner .w{font-size:1.5rem;font-weight:800}
+.tblw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.92rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+th{background:var(--pr2);color:var(--pr)}
+tr.top td{font-weight:700}
+tr.me td{background:var(--pr2)}
+.qs{display:grid;grid-template-columns:2.2em 1fr 3.4em;gap:8px;align-items:center;margin-bottom:6px;font-size:.9rem}
+.note{color:var(--mu);font-size:.85rem}
+.err{color:var(--no);margin-top:8px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Kuis Matematika &amp; Logika</h1>
+<p class="sub">12 soal · makin cepat menjawab dengan benar, makin besar poinnya</p>
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="t1" aria-selected="true">Kerjakan Kuis</button>
+  <button class="tab" role="tab" id="t2" aria-selected="false">Leaderboard</button>
+</div>
+
+<section id="play">
+  <div class="card" id="s-start">
+    <h2>Mulai</h2>
+    <p class="sub">Tiap soal punya batas waktu 3 menit. Jawaban benar paling cepat bernilai 1.000 poin, lalu turun sedikit demi sedikit tiap detik sampai 10% (100 poin) di detik terakhir. Jawaban salah atau waktu habis = 0 poin. Maksimal 12.000 poin. Jawaban langsung terkunci saat dipilih. Satu nama hanya bisa bermain sekali.</p>
+    <input type="text" id="nm" maxlength="30" placeholder="Nama kamu" autocomplete="off">
+    <div class="err" id="msg"></div>
+    <div class="row"><button class="btn" id="go" disabled>Mulai Kuis</button></div>
+  </div>
+
+  <div class="card" id="s-q" hidden>
+    <div class="meta"><span id="pg"></span><span id="tm"></span></div>
+    <div class="bar"><i id="pb" style="width:0"></i></div>
+    <div class="bar"><i id="tbar" style="width:100%;background:var(--gold)"></i></div>
+    <div class="q" id="qt"></div>
+    <div id="ops"></div>
+    <p class="note">Pilih jawaban: langsung terkunci dan lanjut ke soal berikutnya.</p>
+  </div>
+
+  <div class="card" id="s-save" hidden>
+    <h2 id="sb">Menyimpan hasil...</h2>
+    <div class="row"><button class="btn" id="retry" hidden>Coba simpan lagi</button></div>
+  </div>
+
+  <div id="s-res" hidden>
+    <div class="card big">
+      <div class="sub" id="rn"></div>
+      <div class="n" id="rs"></div>
+      <div class="p" id="rp"></div>
+      <div class="p" id="rk"></div>
+      <div class="sub" id="rt"></div>
+      <div class="row" style="justify-content:center"><button class="btn" id="lbgo">Lihat Leaderboard</button></div>
+    </div>
+    <div class="card"><h2>Pembahasan</h2><div id="rv"></div></div>
+  </div>
+</section>
+
+<section id="lb" hidden>
+  <div id="lbout"><div class="card">Memuat leaderboard...</div></div>
+  <p class="note" id="lbnote">Diperbarui otomatis setiap 10 detik.</p>
+</section>
+</div>
+
+<script>
+// GANTI dengan URL Web App Apps Script kamu (berakhiran /exec)
+const API_URL="PASTE_URL_WEB_APP_DI_SINI";
+const L="ABCD",$=id=>document.getElementById(id);
+function call(action,data){
+  return fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(Object.assign({action:action},data||{}))}).then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json()});
+}
+function el(t,c,x){const e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+function fmt(s){s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0")}
+let name="",Q=[],LIM=180,cur=0,ans=[],tt=[],qt0=0,tick=null,lock=false,lbTimer=null,busy=false;
+
+function tab(n){
+  $("play").hidden=n!==1;$("lb").hidden=n!==2;
+  $("t1").setAttribute("aria-selected",n===1);$("t2").setAttribute("aria-selected",n===2);
+  clearInterval(lbTimer);
+  if(n===2){loadLB();lbTimer=setInterval(loadLB,10000)}
+}
+$("t1").onclick=()=>tab(1);$("t2").onclick=()=>tab(2);$("lbgo").onclick=()=>tab(2);
+$("nm").oninput=()=>{$("go").disabled=!$("nm").value.trim()};
+
+$("go").onclick=()=>{
+  $("go").disabled=true;$("msg").textContent="Memuat...";
+  call("start",{name:$("nm").value}).then(r=>{
+    $("go").disabled=false;
+    if(!r.ok){$("msg").textContent=r.msg;return}
+    $("msg").textContent="";
+    name=r.name;Q=r.questions;LIM=r.limit;cur=0;ans=[];tt=[];
+    $("s-start").hidden=true;$("s-q").hidden=false;show();
+  }).catch(()=>{$("go").disabled=false;$("msg").textContent="Gagal terhubung. Coba lagi."});
+};
+
+function show(){
+  const q=Q[cur];lock=false;
+  $("pg").textContent="Soal "+(cur+1)+" dari "+Q.length;
+  $("pb").style.width=(cur/Q.length*100)+"%";
+  $("qt").textContent=q.q;
+  const box=$("ops");box.textContent="";
+  q.o.forEach((t,i)=>{
+    const b=el("button","opt");
+    b.appendChild(el("b",null,L[i]));b.appendChild(el("span",null,t));
+    b.onclick=()=>{if(lock)return;b.classList.add("sel");pick(i)};
+    box.appendChild(b);
+  });
+  qt0=Date.now();clearInterval(tick);upd();tick=setInterval(upd,100);
+}
+function upd(){
+  const left=Math.max(0,LIM-(Date.now()-qt0)/1000);
+  $("tm").textContent="⏱ "+left.toFixed(0)+" dtk · bisa dapat "+Math.round(1000*(1-0.9*(LIM-left)/LIM))+" poin";
+  $("tbar").style.width=(left/LIM*100)+"%";
+  if(left<=0&&!lock)pick(-1);
+}
+function pick(i){
+  lock=true;clearInterval(tick);
+  tt[cur]=Math.min(LIM,(Date.now()-qt0)/1000);ans[cur]=i;
+  setTimeout(()=>{if(cur<Q.length-1){cur++;show()}else send()},350);
+}
+
+function send(){
+  if(busy)return;busy=true;
+  $("s-q").hidden=true;$("s-save").hidden=false;$("retry").hidden=true;$("sb").textContent="Menyimpan hasil...";
+  call("submit",{name:name,answers:ans,times:tt}).then(r=>{
+    busy=false;
+    if(!r.ok){$("sb").textContent=r.msg;return}
+    $("s-save").hidden=true;render(r);
+  }).catch(()=>{
+    busy=false;$("sb").textContent="Gagal menyimpan hasil.";$("retry").hidden=false;
+  });
+}
+$("retry").onclick=send;
+
+function render(r){
+  $("s-res").hidden=false;
+  $("rn").textContent=name;
+  $("rs").textContent=r.points.toLocaleString("id-ID")+" poin";
+  $("rp").textContent=r.correct+" / "+Q.length+" benar ("+r.percent+"%)";
+  $("rk").textContent="Peringkat #"+r.rank+" dari "+r.players+" peserta";
+  $("rt").textContent="Waktu total: "+fmt(r.total);
+  const rv=$("rv");rv.textContent="";
+  Q.forEach((q,i)=>{
+    const x=r.review[i],ok=ans[i]===x.a;
+    const d=el("div","rv "+(ok?"ok":"no"));
+    d.appendChild(el("div",null,(i+1)+". "+q.q));
+    const mine=ans[i]<0?"Tidak menjawab (waktu habis)":"Jawabanmu: "+L[ans[i]]+". "+q.o[ans[i]];
+    d.appendChild(el("small",null,mine+(ok?" ✓":" ✗  ·  Benar: "+L[x.a]+". "+q.o[x.a])+"  ·  "+x.t.toFixed(1)+" dtk  ·  +"+x.pts+" poin"));
+    d.appendChild(el("small",null,x.e));
+    rv.appendChild(d);
+  });
+  window.scrollTo(0,0);
+}
+
+function loadLB(){
+  call("leaderboard").then(r=>{
+    const out=$("lbout");out.textContent="";
+    if(!r.rows.length){out.appendChild(el("div","card","Belum ada peserta yang menyelesaikan kuis."));return}
+    const top=r.rows[0],w=r.rows.filter(x=>x.points===top.points&&x.correct===top.correct&&x.total===top.total);
+    const wd=el("div","winner");
+    wd.appendChild(el("div","note",w.length>1?"🏆 Juara (seri)":"🏆 Juara"));
+    wd.appendChild(el("div","w",w.map(x=>x.name).join(", ")));
+    wd.appendChild(el("div",null,top.points.toLocaleString("id-ID")+" poin · "+top.correct+" / "+r.nq+" benar ("+top.percent+"%) · waktu "+fmt(top.total)));
+    out.appendChild(wd);
+    const c1=el("div","card");c1.appendChild(el("h2",null,"Peringkat semua peserta"));
+    const tw=el("div","tblw"),tb=el("table"),th=el("tr");
+    ["#","Nama","Poin","Benar","Persen","Waktu"].forEach(h=>th.appendChild(el("th",null,h)));
+    tb.appendChild(th);
+    r.rows.forEach((x,i)=>{
+      const tr=el("tr",(i===0?"top ":"")+(x.name===name?"me":""));
+      [i+1,x.name,x.points.toLocaleString("id-ID"),x.correct+"/"+r.nq,x.percent+"%",fmt(x.total)].forEach(v=>tr.appendChild(el("td",null,v)));
+      tb.appendChild(tr);
+    });
+    tw.appendChild(tb);c1.appendChild(tw);
+    c1.appendChild(el("p","note","Peserta: "+r.n+" · rata-rata benar: "+r.avg+"%"));
+    out.appendChild(c1);
+    const c2=el("div","card");c2.appendChild(el("h2",null,"Persentase benar per soal"));
+    r.per.forEach((p,i)=>{
+      const d=el("div","qs");d.appendChild(el("span",null,"#"+(i+1)));
+      const b=el("div","bar");b.style.margin="0";const f=el("i");f.style.width=p+"%";b.appendChild(f);d.appendChild(b);
+      d.appendChild(el("span",null,p+"%"));c2.appendChild(d);
+    });
+    out.appendChild(c2);
+  }).catch(()=>{$("lbnote").textContent="Gagal memuat leaderboard, mencoba lagi..."});
+}
+</script>
+</body>
+</html>
